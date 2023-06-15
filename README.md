@@ -1,4 +1,13 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Decentralised To Do List
+This is a decentralised to do list build on ethereum
+
+## Technologies
+### Frontend
+- NextJS
+
+### Backend
+- Smart contract written in Solidity
+- Deployed on Ethereum network
 
 ## Getting Started
 
