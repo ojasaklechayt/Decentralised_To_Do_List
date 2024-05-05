@@ -13,14 +13,16 @@ export const GET = async (req, res) => {
     }
 }
 
-export const POST = async(req, res) => {
+export const POST = async (request) => {
+    const { title, description, time, category, completed } = await request.json();
+    console.log("Hello", title, description, time, category, completed);
     try {
-        const { title, description, time, category, completed } = req.body;
+        await connectToDatabase();
         const task = new Tasks({ title, description, time, category, completed });
-        const result = await task.save();
-        return new Response(JSON.stringify(result), { status: 200 })
+        await task.save();
+        return new Response(JSON.stringify(task), { status: 201 })
     } catch (error) {
         console.log(error)
-        return new Response("Failed to create tasks", { status: 500 })
+        return new Response("Failed to create task", { status: 500 })
     }
 }

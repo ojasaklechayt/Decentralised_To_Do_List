@@ -15,6 +15,7 @@ export const connectToDatabase = async () => {
             useUnifiedTopology: true,
         })
 
+        mongoose.createConnection(process.env.MONGODB_URI, { useNewUrlParser: true });
         isConnected = true;
         console.log('MongoDB connected');
     } catch(error){

@@ -1,5 +1,4 @@
 'use client'
-
 import { Button } from "@/components/ui/button"
 import { PopoverTrigger, PopoverContent, Popover } from "@/components/ui/popover"
 import { Label } from "@/components/ui/label"
@@ -9,6 +8,7 @@ import { SelectValue, SelectTrigger, SelectItem, SelectContent, Select } from "@
 import { Checkbox } from "@/components/ui/checkbox"
 import { Card } from "@/components/ui/card"
 import { useState, useEffect } from 'react';
+import { toast } from 'react-hot-toast';
 
 export function NotesTaker() {
   const [tasks, setTasks] = useState([]);
@@ -23,7 +23,8 @@ export function NotesTaker() {
     try {
       task.completed = false;
       task.time = new Date();
-      fetch('/api/tasks', {
+      console.log(task);
+      const response = fetch('/api/tasks', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -33,9 +34,14 @@ export function NotesTaker() {
         .then(response => response.json())
         .then(data => {
           setTasks(oldTasks => [...oldTasks, data]);
-          window.alert('Task added successfully');
-        });
+          toast.success('Task Added Successfully');
+          return fetch('/api/tasks');
+        })
+        .then(response => response.json())
+        .then(data => setTasks(data))
+        .catch(error => { console.error('Failed to add task:', error); toast.error('Error Posting Task'); });
     } catch (error) {
+      toast.error('Error Posting Task');
       console.log(error);
     }
   };
@@ -51,7 +57,7 @@ export function NotesTaker() {
       .then(response => response.json())
       .then(data => {
         setTasks(oldTasks => oldTasks.map(task => task._id === id ? data : task));
-        window.alert('Task updated successfully');
+        toast.success('Task Updated Successfully');
       });
   };
 
@@ -63,6 +69,7 @@ export function NotesTaker() {
       .then(() => {
         setTasks(oldTasks => oldTasks.filter(task => task._id !== id));
         window.alert('Task deleted successfully');
+        toast.success('Task Deleted Successfully');
       });
   };
 
@@ -70,7 +77,7 @@ export function NotesTaker() {
     <div className="flex flex-col h-screen">
       <header
         className="bg-gray-900 text-white py-4 px-6 flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Todo App</h1>
+        <h1 className="text-2xl font-bold">Task App</h1>
         <Popover>
           <PopoverTrigger asChild>
             <Button size="sm" variant="primary">
@@ -78,7 +85,7 @@ export function NotesTaker() {
               Add Task
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-[400px] p-4 space-y-4">
+          <PopoverContent className="w-full md:w-[400px] p-4 space-y-4">
             <div className="space-y-2">
               <Label htmlFor="task-title">Task Title</Label>
               <Input id="task-title" placeholder="Enter task title" value={newTask.title} onChange={e => setNewTask({ ...newTask, title: e.target.value })} />
@@ -90,7 +97,7 @@ export function NotesTaker() {
             <div className="space-y-2">
               <Label htmlFor="task-category">Task Category</Label>
               <div className="flex items-center gap-2">
-                <Input className="w-full" id="new-category" placeholder="Add new category" value={newTask.category} onChange={e => setNewTask({ ...newTask, category: e.target.value })}/>
+                <Input className="w-full" id="new-category" placeholder="Add new category" value={newTask.category} onChange={e => setNewTask({ ...newTask, category: e.target.value })} />
               </div>
             </div>
             <div className="flex justify-end gap-2">
@@ -107,10 +114,10 @@ export function NotesTaker() {
           {tasks.map(task => (
             <Card
               key={task._id}
-              className="p-4 border border-gray-200 rounded-lg dark:border-gray-800 dark:border-gray-800">
+              className="p-4 border border-gray-200 rounded-lg dark:border-gray-800">
               <div className="flex items-center justify-between mb-2">
                 <Checkbox id={`task-${task._id}`} />
-                <span className="text-xs text-gray-500 dark:text-gray-400">Created 2 days ago</span>
+                <span className="text-xs text-gray-500 dark:text-gray-400">{new Date(task.time).toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' })} {new Date(task.time).toLocaleDateString()}</span>
               </div>
               <h3 className="text-lg font-medium mb-1">{task.title}</h3>
               <p className="text-gray-500 dark:text-gray-400 mb-4">
