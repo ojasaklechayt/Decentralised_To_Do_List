@@ -18,6 +18,7 @@ export const GET = async () => {
             errorMessage = "Failed to fetch all tasks: Prisma initialization error";
         } else {
             console.error("Error fetching tasks:", error);
+            console.alert(error);
             errorMessage = "Failed to fetch all tasks: " + error.message;
         }
 
