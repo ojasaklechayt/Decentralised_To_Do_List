@@ -1,7 +1,8 @@
-import mongoose from "mongoose";
+import mongoose, { mongo } from "mongoose";
 
 let isConnected = false;
 export const connectToDatabase = async () => {
+    mongoose.set('strictQuery', true);
 
     if (isConnected) {
         console.log('=> using existing database connection');
@@ -15,7 +16,9 @@ export const connectToDatabase = async () => {
             useNewUrlParser: true,
             useUnifiedTopology: true,
         });
-        isConnected = db.connections[0].readyState;
+
+        isConnected = true;
+        
         console.log("=> Database connected");
     } catch (error) {
         console.error(`Unable to connect to database: ${error}`);
