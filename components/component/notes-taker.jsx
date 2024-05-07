@@ -1,18 +1,19 @@
 'use client'
-import { Button } from "@/components/ui/button"
-import { PopoverTrigger, PopoverContent, Popover } from "@/components/ui/popover"
-import { Label } from "@/components/ui/label"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { SelectValue, SelectTrigger, SelectItem, SelectContent, Select } from "@/components/ui/select"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Card } from "@/components/ui/card"
+import { Button } from "@/components/ui/button";
+import { PopoverTrigger, PopoverContent, Popover } from "@/components/ui/popover";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { SelectValue, SelectTrigger, SelectItem, SelectContent, Select } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Card } from "@/components/ui/card";
 import { useState, useEffect } from 'react';
 import { toast } from 'react-hot-toast';
 
-export function NotesTaker() {
-  const [tasks, setTasks] = useState([]);
+export function NotesTaker({ initialTasks }) {
+  const [tasks, setTasks] = useState(initialTasks);
   const [newTask, setNewTask] = useState({ title: '', description: '', time: '', category: '', completed: '' });
+
   useEffect(() => {
     fetch('/api/tasks')
       .then(response => response.json())
@@ -24,7 +25,7 @@ export function NotesTaker() {
       task.completed = false;
       task.time = new Date();
       console.log(task);
-      const response = fetch('/api/tasks', {
+      fetch('/api/tasks', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -111,7 +112,7 @@ export function NotesTaker() {
       </header>
       <main className="flex-1 p-6 overflow-auto">
         <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-          {tasks.map(task => (
+          {tasks && tasks.map(task => (
             <Card
               key={task._id}
               className="p-4 border border-gray-200 rounded-lg dark:border-gray-800">
@@ -189,10 +190,9 @@ export function NotesTaker() {
   );
 }
 
-
 function DeleteIcon(props) {
   return (
-    (<svg
+    <svg
       {...props}
       xmlns="http://www.w3.org/2000/svg"
       width="24"
@@ -206,14 +206,13 @@ function DeleteIcon(props) {
       <path d="M20 5H9l-7 7 7 7h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2Z" />
       <line x1="18" x2="12" y1="9" y2="15" />
       <line x1="12" x2="18" y1="9" y2="15" />
-    </svg>)
+    </svg>
   );
 }
 
-
 function PlusIcon(props) {
   return (
-    (<svg
+    <svg
       {...props}
       xmlns="http://www.w3.org/2000/svg"
       width="24"
@@ -226,14 +225,13 @@ function PlusIcon(props) {
       strokeLinejoin="round">
       <path d="M5 12h14" />
       <path d="M12 5v14" />
-    </svg>)
+    </svg>
   );
 }
 
-
 function TrashIcon(props) {
   return (
-    (<svg
+    <svg
       {...props}
       xmlns="http://www.w3.org/2000/svg"
       width="24"
@@ -247,6 +245,6 @@ function TrashIcon(props) {
       <path d="M3 6h18" />
       <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
       <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
-    </svg>)
+    </svg>
   );
 }
