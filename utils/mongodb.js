@@ -2,23 +2,23 @@ import mongoose from "mongoose";
 
 let isConnected = false;
 export const connectToDatabase = async () => {
-    mongoose.set('strictQuery', true);
 
-    if(isConnected) {
-        console.log('MongoDB connected');
+    if (isConnected) {
+        console.log('=> using existing database connection');
         return;
     }
 
+    console.log('=> using new database connection');
+
     try {
-        await mongoose.connect(process.env.MONGODB_URI, {
+        const db = await mongoose.connect(process.env.MONGODB_URI, {
             useNewUrlParser: true,
             useUnifiedTopology: true,
-        })
-
-        mongoose.createConnection(process.env.MONGODB_URI, { useNewUrlParser: true });
-        isConnected = true;
-        console.log('MongoDB connected');
-    } catch(error){
-        console.log(error);
+        });
+        isConnected = db.connections[0].readyState;
+        console.log("=> Database connected");
+    } catch (error) {
+        console.error(`Unable to connect to database: ${error}`);
     }
+
 }
