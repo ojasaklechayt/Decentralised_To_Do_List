@@ -1,6 +1,7 @@
 // app/api/tasks/index.js
 import { PrismaClient } from '@prisma/client'
 const prisma = new PrismaClient();
+
 export const GET = async () => {
     try {
         const tasks = await prisma.tasks.findMany();
@@ -12,10 +13,9 @@ export const GET = async () => {
 }
 
 export const POST = async (request) => {
+    const body = await request.json();
     try {
-        const { title, description, time, category, completed } = await request.json();
-        console.log("Hello", title, description, time, category, completed);
-        const task = new prisma.tasks.create({ data: { title, description, time, category, completed } });
+        const task = await prisma.tasks.create({ data: { title: body.title, description: body.description, time: new Date(body.time), category: body.category, completed: body.completed } });
         return new Response(JSON.stringify(task), { status: 201 })
     } catch (error) {
         console.error(error);

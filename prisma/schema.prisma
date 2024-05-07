@@ -7,9 +7,8 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model tasks {
+model Tasks {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  v           Int      @map("__v")
   category    String
   completed   Boolean
   description String
