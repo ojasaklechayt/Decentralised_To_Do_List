@@ -7,22 +7,7 @@ export const GET = async () => {
         const tasks = await prisma.tasks.findMany();
         return new Response(JSON.stringify(tasks), { status: 200 });
     } catch (error) {
-        let errorMessage = "";
-        let statusCode = 500;
-
-        if (error instanceof Prisma.PrismaClientKnownRequestError) {
-            console.error("Prisma error:", error.message);
-            errorMessage = "Failed to fetch all tasks: Database error";
-        } else if (error instanceof Prisma.PrismaClientInitializationError) {
-            console.error("Prisma initialization error:", error.message);
-            errorMessage = "Failed to fetch all tasks: Prisma initialization error";
-        } else {
-            console.error("Error fetching tasks:", error);
-            console.alert(error);
-            errorMessage = "Failed to fetch all tasks: " + error.message;
-        }
-
-        return new Response(errorMessage, { status: statusCode });
+        return new Response(JSON.stringify({ error: error.message }), { status: error.status });
     }
 }
 
@@ -33,6 +18,6 @@ export const POST = async (request) => {
         return new Response(JSON.stringify(task), { status: 201 })
     } catch (error) {
         console.error(error);
-        return new Response("Failed to create task", { status: 500 })
+        return new Response(JSON.stringify({ error: error.message }), { status: error.staus })
     }
 }
