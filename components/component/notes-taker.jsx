@@ -24,7 +24,7 @@ export function NotesTaker() {
       task.completed = false;
       task.time = new Date();
       console.log(task);
-      const response = fetch('/api/tasks', {
+      const response = fetch(`${process.env.API_ROUTE}/api/tasks/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -35,7 +35,7 @@ export function NotesTaker() {
         .then(data => {
           setTasks(oldTasks => [...oldTasks, data]);
           toast.success('Task Added Successfully');
-          return fetch('/api/tasks');
+          return fetch(`${process.env.API_ROUTE}/api/tasks/`);
         })
         .then(response => response.json())
         .then(data => setTasks(data))
@@ -47,7 +47,7 @@ export function NotesTaker() {
   };
 
   const updateTask = (id, updatedTask) => {
-    fetch(`/api/tasks/${id}`, {
+    fetch(`${process.env.API_ROUTE}/api/tasks/${id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -62,7 +62,7 @@ export function NotesTaker() {
   };
 
   const deleteTask = (id) => {
-    fetch(`/api/tasks/${id}`, {
+    fetch(`${process.env.API_ROUTE}/api/tasks/${id}`, {
       method: 'DELETE',
     })
       .then(response => response.json())
