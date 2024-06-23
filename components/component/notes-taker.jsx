@@ -12,40 +12,34 @@ import { PenBox, Check } from 'lucide-react';
 export function NotesTaker() {
   const [tasks, setTasks] = useState([]);
   const [newTask, setNewTask] = useState({ title: '', description: '', category: '', completed: false });
-  const [editingTask, setEditingTask] = useState(null); // State to track the task being edited
-  const [editFormOpen, setEditFormOpen] = useState(null); // State to track which edit form is open
+  const [editingTask, setEditingTask] = useState(null);
+  const [editFormOpen, setEditFormOpen] = useState(null);
 
   useEffect(() => {
-    fetchTasks();
+    const storedTasks = JSON.parse(localStorage.getItem('added-items')) || [];
+    const filteredTasks = filterOldTasks(storedTasks);
+    setTasks(storedTasks);
   }, []);
 
-  const fetchTasks = () => {
-    fetch(`${process.env.API_ROUTE}/api/tasks`)
-      .then(response => response.json())
-      .then(data => setTasks(data))
-      .catch(error => console.error('Failed to fetch tasks:', error));
+  const filterOldTasks = (tasks) => {
+    const now = new Date();
+    const filteredTasks = tasks.filter(task => {
+      const taskTime = new Date(task.time);
+      return (now - taskTime) / (1000 * 60 * 60 * 24) <= 7;
+    });
+    localStorage.setItem('added-items', JSON.stringify(filteredTasks));
+    return filteredTasks;
   };
 
   const addTask = (task) => {
     try {
       task.time = new Date();
-      fetch(`${process.env.API_ROUTE}/api/tasks/`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(task),
-      })
-        .then(response => response.json())
-        .then(data => {
-          setTasks(oldTasks => [...oldTasks, data]);
-          toast.success('Task Added Successfully');
-          fetchTasks(); // Fetch tasks again to update the list
-        })
-        .catch(error => {
-          console.error('Failed to add task:', error);
-          toast.error('Error Posting Task');
-        });
+      let storedTasks = JSON.parse(localStorage.getItem('added-items')) || [];
+      storedTasks.push(task);
+      const updatedTasks = filterOldTasks(storedTasks);
+      localStorage.setItem('added-items', JSON.stringify(updatedTasks));
+      setTasks(updatedTasks);
+      toast.success('Task Added Successfully');
     } catch (error) {
       toast.error('Error Posting Task');
       console.log(error);
@@ -53,49 +47,46 @@ export function NotesTaker() {
   };
 
   const updateTask = (id, updatedTask) => {
-    fetch(`${process.env.API_ROUTE}/api/tasks/${id}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(updatedTask),
-    })
-      .then(response => response.json())
-      .then(data => {
-        // Update the tasks list and reset editing state
-        setTasks(tasks.map(task => (task._id === id ? data : task)));
-        setEditingTask(null);
-        setEditFormOpen(null); // Close the edit form
-        toast.success('Task Updated Successfully');
-      })
-      .catch(error => {
-        console.error('Failed to update task:', error);
-        toast.error('Error Updating Task');
-      });
+    try {
+      updatedTask.time = new Date();
+      let storedTasks = JSON.parse(localStorage.getItem('added-items')) || [];
+      const taskIndex = storedTasks.findIndex(task => task._id === id);
+
+      if (taskIndex !== -1) {
+        storedTasks[taskIndex] = { ...storedTasks[taskIndex], ...updatedTask };
+      }
+
+      const updatedTasks = filterOldTasks(storedTasks);
+      localStorage.setItem('added-items', JSON.stringify(updatedTasks));
+      setTasks(updatedTasks);
+      toast.success('Task Updated Successfully');
+    } catch (error) {
+      console.error('Failed to update task:', error);
+      toast.error('Error Updating Task');
+    }
   };
 
   const deleteTask = (id) => {
-    fetch(`${process.env.API_ROUTE}/api/tasks/${id}`, {
-      method: 'DELETE',
-    })
-      .then(() => {
-        setTasks(oldTasks => oldTasks.filter(task => task._id !== id));
-        toast.success('Task Deleted Successfully');
-      })
-      .catch(error => {
-        console.error('Failed to delete task:', error);
-        toast.error('Error Deleting Task');
-      });
+    try {
+      let storedTasks = JSON.parse(localStorage.getItem('added-items')) || [];
+      storedTasks = storedTasks.filter(task => task._id !== id);
+      const updatedTasks = filterOldTasks(storedTasks);
+      localStorage.setItem('added-items', JSON.stringify(updatedTasks));
+      setTasks(updatedTasks);
+      toast.success('Task Deleted Successfully');
+    } catch (error) {
+      console.error('Failed to delete task:', error);
+      toast.error('Error Deleting Task');
+    }
   };
 
   const handleEditClick = (task) => {
-    // Toggle edit form visibility for the clicked task
     if (editFormOpen === task._id) {
-      setEditFormOpen(null); // Close edit form if already open
+      setEditFormOpen(null);
     } else {
-      setEditFormOpen(task._id); // Open edit form for the clicked task
+      setEditFormOpen(task._id);
       setEditingTask(task);
-      setNewTask({ ...task }); // Populate form fields with task details
+      setNewTask({ ...task });
     }
   };
 
