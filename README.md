@@ -1,13 +1,9 @@
-# Decentralised To Do List
-This is a decentralised to do list build on ethereum
+# Do It Ma
+To Do List
 
 ## Technologies
 ### Frontend
 - NextJS
-
-### Backend
-- Smart contract written in Solidity
-- Deployed on Ethereum network
 
 ## Getting Started
 
